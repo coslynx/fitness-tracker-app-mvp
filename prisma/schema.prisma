@@ -1,0 +1,64 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(auto()) @map("_id") @db.Uuid
+  email     String   @unique
+  name      String?
+  provider  String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  goals     Goal[]
+  workouts  Workout[]
+  nutritionEntries NutritionEntry[]
+  socialPosts   SocialPost[]
+}
+
+model Goal {
+  id        String   @id @default(auto()) @map("_id") @db.Uuid
+  name      String
+  description String
+  startDate DateTime
+  endDate   DateTime
+  userId    String
+  user      User      @relation(fields: [userId], references: [id])
+  workouts  Workout[]
+}
+
+model Workout {
+  id        String   @id @default(auto()) @map("_id") @db.Uuid
+  name      String
+  type      String
+  duration  Int
+  intensity String
+  notes     String?
+  userId    String
+  goalId    String?
+  user      User      @relation(fields: [userId], references: [id])
+  goal      Goal?     @relation(fields: [goalId], references: [id])
+  caloriesBurned Int? @default(0)
+}
+
+model NutritionEntry {
+  id        String   @id @default(auto()) @map("_id") @db.Uuid
+  name      String
+  description String
+  calories  Int
+  macros    String
+  userId    String
+  user      User      @relation(fields: [userId], references: [id])
+}
+
+model SocialPost {
+  id        String   @id @default(auto()) @map("_id") @db.Uuid
+  message   String
+  userId    String
+  user      User      @relation(fields: [userId], references: [id])
+  createdAt DateTime @default(now())
+}
